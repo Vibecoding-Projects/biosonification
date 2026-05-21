@@ -17,7 +17,8 @@ def test_status_endpoint(flask_client, mock_generator):
     """Test /api/status endpoint returns correct structure."""
     with patch("web.app.get_generator", return_value=mock_generator):
         with patch(
-            "web.app.check_audio_synthesizer", return_value={"midi2audio": True, "fluidsynth": False, "timidity": False}
+            "web.app.check_audio_synthesizer",
+            return_value={"midi2audio": True, "fluidsynth": True, "ogg": True, "timidity": False},
         ):
             response = flask_client.get("/api/status")
 
@@ -40,7 +41,7 @@ def test_status_endpoint_when_generator_not_ready(flask_client):
     with patch("web.app.get_generator", return_value=mock_gen):
         with patch(
             "web.app.check_audio_synthesizer",
-            return_value={"midi2audio": False, "fluidsynth": False, "timidity": False},
+            return_value={"midi2audio": False, "fluidsynth": False, "ogg": False, "timidity": False},
         ):
             response = flask_client.get("/api/status")
 
@@ -73,7 +74,7 @@ def test_generate_endpoint_validation_empty_fasta(flask_client):
 def test_generate_endpoint_success(flask_client, mock_generator, sample_fasta):
     """Test /api/generate returns success with valid FASTA."""
     with patch("web.app.get_generator", return_value=mock_generator):
-        with patch("web.app.midi_to_wav", return_value=False):
+        with patch("web.app.midi_to_ogg", return_value=False):
             response = flask_client.post("/api/generate", json={"fasta": sample_fasta})
 
             assert response.status_code == 200
@@ -89,7 +90,7 @@ def test_generate_endpoint_success(flask_client, mock_generator, sample_fasta):
 def test_generate_endpoint_with_audio_conversion(flask_client, mock_generator, sample_fasta):
     """Test /api/generate includes audio when conversion succeeds."""
     with patch("web.app.get_generator", return_value=mock_generator):
-        with patch("web.app.midi_to_wav", return_value=True):
+        with patch("web.app.midi_to_ogg", return_value=True):
             response = flask_client.post("/api/generate", json={"fasta": sample_fasta})
 
             assert response.status_code == 200
@@ -97,7 +98,10 @@ def test_generate_endpoint_with_audio_conversion(flask_client, mock_generator, s
 
             assert data["success"] is True
             assert data["audio_available"] is True
+            assert data["audio_format"] == "ogg"
+            assert data["audio_mimetype"] == "audio/ogg"
             assert "audio_filename" in data
+            assert data["audio_filename"].endswith(".ogg")
 
 
 def test_download_midi_endpoint(flask_client, tmp_path):
@@ -147,6 +151,31 @@ def test_download_midi_endpoint_not_found(flask_client):
     assert response.status_code == 404
     # Response might be HTML or JSON depending on Flask error handling
     # Just check status code
+
+
+def test_download_ogg_endpoint(flask_client):
+    """Test /api/download/<session_id>/ogg endpoint."""
+    from pathlib import Path
+
+    output_dir = Path("web/output")
+    audio_dir = output_dir / "audio"
+    audio_dir.mkdir(parents=True, exist_ok=True)
+
+    session_id = "test_ogg"
+    ogg_path = audio_dir / f"{session_id}.ogg"
+    ogg_path.write_bytes(b"OggS-test")
+
+    try:
+        response = flask_client.get(f"/api/download/{session_id}/ogg")
+        assert response.status_code == 200
+        assert response.content_type == "audio/ogg"
+        response.close()
+    finally:
+        if ogg_path.exists():
+            try:
+                ogg_path.unlink()
+            except PermissionError:
+                pass
 
 
 def test_file_size_limit(flask_client):

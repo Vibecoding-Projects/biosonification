@@ -222,7 +222,7 @@ function showResults(data) {
     
     // Audio player
     if (data.audio_available) {
-        elements.audioPlayer.src = `/api/download/${data.session_id}/wav`;
+        elements.audioPlayer.src = `/api/download/${data.session_id}/ogg`;
         elements.audioPlayer.classList.remove('hidden');
         elements.audioUnavailable.classList.add('hidden');
     } else {
@@ -359,12 +359,12 @@ async function createExampleCard(example) {
     const audioPlayerHTML = audioAvailable
         ? `<div class="example-audio-player">
             <audio controls preload="none">
-                <source src="${audioUrl}" type="audio/wav">
+                <source src="${audioUrl}" type="audio/ogg">
                 Your browser does not support the audio element.
             </audio>
         </div>`
         : `<div class="audio-unavailable-example">
-            <p>Audio playback requires fluidsynth or timidity</p>
+            <p>Audio playback requires FluidSynth with OGG support</p>
         </div>`;
 
     card.innerHTML = `

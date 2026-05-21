@@ -72,7 +72,7 @@
 |---|---|
 | `web/app.py` | Flask entrypoint |
 | `web/generator.py` | Wrapper вокруг `generate_structured_music_from_fasta()` |
-| `web/midi_to_audio.py` | Опциональная MIDI -> WAV конвертация |
+| `web/midi_to_audio.py` | Опциональная MIDI -> OGG/WAV конвертация |
 | `web/templates/` | HTML-шаблоны |
 | `web/static/` | CSS и JS |
 | `web/README.md` | Запуск web-интерфейса |

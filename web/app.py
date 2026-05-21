@@ -11,7 +11,7 @@ import numpy as np
 from flask import Flask, jsonify, render_template, request, send_file
 
 from .generator import FASTAValidationError, get_generator
-from .midi_to_audio import check_audio_synthesizer, get_install_instructions, midi_to_wav
+from .midi_to_audio import check_audio_synthesizer, get_install_instructions, midi_to_ogg
 
 # Project root
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -46,6 +46,11 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 
 
+def _audio_enabled(synth_status: dict) -> bool:
+    """Return whether browser-playable generated audio can be rendered."""
+    return bool(synth_status.get("ogg"))
+
+
 @app.route("/")
 def index():
     """Main page."""
@@ -53,7 +58,7 @@ def index():
     synth_status = check_audio_synthesizer()
     return render_template(
         "index.html",
-        audio_enabled=synth_status["midi2audio"] or synth_status["fluidsynth"] or synth_status["timidity"],
+        audio_enabled=_audio_enabled(synth_status),
         install_instructions=get_install_instructions(),
     )
 
@@ -100,15 +105,17 @@ def generate():
         # Generate music
         result = generator.generate(fasta_text, str(OUTPUT_DIR))
 
-        # Try to convert MIDI to WAV for audio playback
+        # Try to convert MIDI to OGG for audio playback
         midi_path = result["midi_path"]
         session_id = result["session_id"]
-        wav_path = str(OUTPUT_DIR / "audio" / f"{session_id}.wav")
+        ogg_path = str(OUTPUT_DIR / "audio" / f"{session_id}.ogg")
 
         audio_available = False
-        if midi_to_wav(midi_path, wav_path):
-            result["audio_path"] = wav_path
-            result["audio_filename"] = f"{session_id}.wav"
+        if midi_to_ogg(midi_path, ogg_path):
+            result["audio_path"] = ogg_path
+            result["audio_filename"] = f"{session_id}.ogg"
+            result["audio_format"] = "ogg"
+            result["audio_mimetype"] = "audio/ogg"
             audio_available = True
 
         result["audio_available"] = audio_available
@@ -131,14 +138,14 @@ def generate():
 
 @app.route("/api/download/<session_id>/<file_type>")
 def download_file(session_id, file_type):
-    """Download generated file (MIDI or WAV)."""
+    """Download generated file (MIDI or OGG)."""
     if file_type == "midi":
         file_path = OUTPUT_DIR / "midi" / f"{session_id}.mid"
         mimetype = "audio/midi"
         as_attachment = True
-    elif file_type == "wav":
-        file_path = OUTPUT_DIR / "audio" / f"{session_id}.wav"
-        mimetype = "audio/wav"
+    elif file_type == "ogg":
+        file_path = OUTPUT_DIR / "audio" / f"{session_id}.ogg"
+        mimetype = "audio/ogg"
         as_attachment = True
     else:
         return jsonify({"error": "Invalid file type"}), 400
@@ -163,7 +170,7 @@ def status():
             "error": generator.get_error() if not generator.is_ready() else None,
             "generator": generator.status_payload(),
             "audio_synthesizers": synth_status,
-            "audio_enabled": synth_status["midi2audio"] or synth_status["fluidsynth"] or synth_status["timidity"],
+            "audio_enabled": _audio_enabled(synth_status),
         }
     )
 
@@ -303,7 +310,7 @@ def download_example_midi(example_id):
 
 @app.route("/api/examples/<example_id>/audio")
 def stream_example_audio(example_id):
-    """Stream example audio (WAV)."""
+    """Stream example audio (OGG)."""
     from .examples_data import EXAMPLES
 
     example = next((ex for ex in EXAMPLES if ex["id"] == example_id), None)
@@ -313,19 +320,19 @@ def stream_example_audio(example_id):
     audio_dir = PROJECT_ROOT / "web" / "static" / "examples" / "audio"
     audio_dir.mkdir(parents=True, exist_ok=True)
 
-    wav_filename = example["midi_filename"].replace(".mid", ".wav")
-    wav_path = audio_dir / wav_filename
+    ogg_filename = example["midi_filename"].replace(".mid", ".ogg")
+    ogg_path = audio_dir / ogg_filename
 
-    # Convert MIDI to WAV if not exists
-    if not wav_path.exists():
+    # Convert MIDI to OGG if not exists
+    if not ogg_path.exists():
         midi_path = PROJECT_ROOT / "web" / "static" / "examples" / "midi" / example["midi_filename"]
         if not midi_path.exists():
             return jsonify({"error": "MIDI file not found"}), 404
 
-        if not midi_to_wav(str(midi_path), str(wav_path)):
-            return jsonify({"error": "Audio conversion failed. Install fluidsynth or timidity."}), 500
+        if not midi_to_ogg(str(midi_path), str(ogg_path)):
+            return jsonify({"error": "Audio conversion failed. Install FluidSynth with OGG support."}), 500
 
-    return send_file(str(wav_path), mimetype="audio/wav", as_attachment=False)
+    return send_file(str(ogg_path), mimetype="audio/ogg", as_attachment=False)
 
 
 @app.route("/health")

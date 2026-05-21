@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 from web.midi_to_audio import (
     check_audio_synthesizer,
     get_install_instructions,
+    midi_to_ogg,
     midi_to_wav,
 )
 
@@ -18,9 +19,11 @@ def test_check_audio_synthesizer():
     assert isinstance(status, dict)
     assert "midi2audio" in status
     assert "fluidsynth" in status
+    assert "ogg" in status
     assert "timidity" in status
     assert isinstance(status["midi2audio"], bool)
     assert isinstance(status["fluidsynth"], bool)
+    assert isinstance(status["ogg"], bool)
     assert isinstance(status["timidity"], bool)
 
 
@@ -30,13 +33,14 @@ def test_get_install_instructions_when_available():
         mock_check.return_value = {
             "midi2audio": True,
             "fluidsynth": False,
+            "ogg": True,
             "timidity": False,
         }
 
         instructions = get_install_instructions()
 
         assert "enabled" in instructions.lower()
-        assert "midi2audio" in instructions.lower()
+        assert "ogg" in instructions.lower()
 
 
 def test_get_install_instructions_when_unavailable():
@@ -45,12 +49,25 @@ def test_get_install_instructions_when_unavailable():
         mock_check.return_value = {
             "midi2audio": False,
             "fluidsynth": False,
+            "ogg": False,
             "timidity": False,
         }
 
         instructions = get_install_instructions()
 
         assert "requires" in instructions.lower() or "install" in instructions.lower()
+
+
+@patch("web.midi_to_audio._try_fluidsynth_ogg_cli")
+def test_midi_to_ogg_success_with_fluidsynth(mock_try, sample_midi_path, tmp_path):
+    """Test midi_to_ogg succeeds with FluidSynth OGG output."""
+    mock_try.return_value = True
+
+    ogg_path = str(tmp_path / "output.ogg")
+    result = midi_to_ogg(sample_midi_path, ogg_path)
+
+    assert result is True
+    mock_try.assert_called_once()
 
 
 @patch("web.midi_to_audio._try_midi2audio")
@@ -131,6 +148,26 @@ def test_fluidsynth_cli_command_format(mock_run, sample_midi_path, tmp_path):
 
         # Verify subprocess was called
         assert mock_run.called
+
+
+@patch("web.midi_to_audio.subprocess.run")
+def test_fluidsynth_ogg_cli_command_format(mock_run, sample_midi_path, tmp_path):
+    """Test fluidsynth OGG CLI is called with correct arguments."""
+    from web.midi_to_audio import _try_fluidsynth_ogg_cli
+
+    mock_run.return_value = MagicMock(returncode=0)
+
+    soundfont = tmp_path / "test.sf2"
+    soundfont.write_text("dummy")
+
+    ogg_path = str(tmp_path / "output.ogg")
+    _try_fluidsynth_ogg_cli(sample_midi_path, ogg_path, str(soundfont))
+
+    assert mock_run.called
+    call_args = mock_run.call_args[0][0]
+    assert "fluidsynth" in call_args[0].lower()
+    assert "-T" in call_args
+    assert "oga" in call_args
 
 
 @patch("web.midi_to_audio.subprocess.run")

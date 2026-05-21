@@ -178,7 +178,9 @@ def test_web_status_reports_structured_generator(monkeypatch):
 
     monkeypatch.setattr(web_app, "get_generator", lambda: FakeGenerator())
     monkeypatch.setattr(
-        web_app, "check_audio_synthesizer", lambda: {"midi2audio": False, "fluidsynth": False, "timidity": False}
+        web_app,
+        "check_audio_synthesizer",
+        lambda: {"midi2audio": False, "fluidsynth": False, "ogg": False, "timidity": False},
     )
 
     response = web_app.app.test_client().get("/api/status")
@@ -223,7 +225,7 @@ def test_web_generate_endpoint_returns_structured_metadata(monkeypatch):
             }
 
     monkeypatch.setattr(web_app, "get_generator", lambda: FakeGenerator())
-    monkeypatch.setattr(web_app, "midi_to_wav", lambda midi_path, wav_path: False)
+    monkeypatch.setattr(web_app, "midi_to_ogg", lambda midi_path, ogg_path: False)
 
     response = web_app.app.test_client().post(
         "/api/generate",
