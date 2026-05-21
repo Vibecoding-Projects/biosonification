@@ -50,6 +50,7 @@ const elements = {
 
 // State
 let selectedFile = null;
+const FASTA_SEQUENCE_CHARS = new Set('ABCDEFGHIKLMNPQRSTUVWXYZ*-.'.split(''));
 
 // ============================================
 // Navigation
@@ -151,7 +152,23 @@ async function handleGenerate() {
     
     // If no text, check if file is selected
     if (!fastaText && !selectedFile) {
-        showError('Please paste a DNA sequence or upload a FASTA file');
+        showError('Введите FASTA последовательность или загрузите FASTA файл');
+        return;
+    }
+
+    let validationText = fastaText;
+    if (selectedFile) {
+        try {
+            validationText = await selectedFile.text();
+        } catch (error) {
+            showError('Не удалось прочитать файл. Загрузите текстовый FASTA файл в кодировке UTF-8.');
+            return;
+        }
+    }
+
+    const validation = validateFastaFormat(validationText);
+    if (!validation.valid) {
+        showError(validation.message);
         return;
     }
     
@@ -269,6 +286,64 @@ function resetToInput() {
 
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function validateFastaFormat(fastaText) {
+    const text = fastaText.replace(/^\uFEFF/, '').trim();
+
+    if (!text) {
+        return { valid: false, message: 'Введите FASTA последовательность или загрузите FASTA файл.' };
+    }
+
+    if (!text.startsWith('>')) {
+        return { valid: false, message: "FASTA должна начинаться со строки заголовка: >sequence_id" };
+    }
+
+    let currentHeader = null;
+    let currentHasSequence = false;
+    let hasRecord = false;
+
+    for (const rawLine of text.split(/\r?\n/)) {
+        const line = rawLine.trim();
+        if (!line) {
+            continue;
+        }
+
+        if (line.startsWith('>')) {
+            if (currentHeader !== null && !currentHasSequence) {
+                return { valid: false, message: `FASTA запись "${currentHeader}" не содержит последовательность.` };
+            }
+
+            currentHeader = line.slice(1).trim() || 'Sequence';
+            currentHasSequence = false;
+            hasRecord = true;
+            continue;
+        }
+
+        if (currentHeader === null) {
+            return { valid: false, message: 'Строки последовательности должны идти после FASTA заголовка.' };
+        }
+
+        const invalidChar = [...line.toUpperCase()].find(char => !FASTA_SEQUENCE_CHARS.has(char));
+        if (invalidChar) {
+            return {
+                valid: false,
+                message: `Недопустимый символ в FASTA последовательности: "${invalidChar}".`
+            };
+        }
+
+        currentHasSequence = true;
+    }
+
+    if (!hasRecord) {
+        return { valid: false, message: 'FASTA запись не найдена.' };
+    }
+
+    if (!currentHasSequence) {
+        return { valid: false, message: `FASTA запись "${currentHeader}" не содержит последовательность.` };
+    }
+
+    return { valid: true, message: '' };
 }
 
 // ============================================

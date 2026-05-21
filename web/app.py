@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 from flask import Flask, jsonify, render_template, request, send_file
 
-from .generator import FASTAValidationError, get_generator
+from .generator import BioMusicGenerator, FASTAValidationError, get_generator
 from .midi_to_audio import check_audio_synthesizer, get_install_instructions, midi_to_ogg
 
 # Project root
@@ -89,7 +89,10 @@ def generate():
                     400,
                 )
         elif not fasta_text:
-            return jsonify({"success": False, "error": "Please provide a FASTA file or paste a DNA sequence"}), 400
+            return jsonify({"success": False, "error": "Please provide a FASTA file or paste a FASTA sequence"}), 400
+
+        # Validate the submitted content before initializing the generator/model.
+        BioMusicGenerator.validate_fasta(fasta_text)
 
         # Get generator
         generator = get_generator()

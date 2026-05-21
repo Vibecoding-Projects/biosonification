@@ -2,6 +2,7 @@
 Tests for web.app Flask endpoints.
 """
 
+from io import BytesIO
 from unittest.mock import MagicMock, patch
 
 
@@ -69,6 +70,49 @@ def test_generate_endpoint_validation_empty_fasta(flask_client):
     assert response.status_code == 400
     data = response.get_json()
     assert data["success"] is False
+
+
+def test_generate_endpoint_rejects_sequence_without_fasta_header(flask_client, mock_generator):
+    """Test /api/generate accepts only FASTA-formatted text."""
+    with patch("web.app.get_generator", return_value=mock_generator) as get_generator_mock:
+        response = flask_client.post("/api/generate", json={"fasta": "ACGT" * 30})
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["success"] is False
+    assert "fasta" in data["error"].lower()
+    assert ">" in data["error"]
+    assert not get_generator_mock.called
+
+
+def test_generate_endpoint_rejects_uploaded_sequence_without_fasta_header(flask_client, mock_generator):
+    """Test uploaded content must also be FASTA-formatted."""
+    with patch("web.app.get_generator", return_value=mock_generator) as get_generator_mock:
+        response = flask_client.post(
+            "/api/generate",
+            data={"fasta_file": (BytesIO(("ACGT" * 30).encode("utf-8")), "sequence.fa")},
+            content_type="multipart/form-data",
+        )
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["success"] is False
+    assert "fasta" in data["error"].lower()
+    assert not get_generator_mock.called
+
+
+def test_generate_endpoint_rejects_invalid_fasta_symbols(flask_client, mock_generator):
+    """Test sequence lines reject non-FASTA symbols instead of silently cleaning them."""
+    invalid_fasta = ">bad\n" + "ACGT" * 25 + "123"
+
+    with patch("web.app.get_generator", return_value=mock_generator) as get_generator_mock:
+        response = flask_client.post("/api/generate", json={"fasta": invalid_fasta})
+
+    assert response.status_code == 400
+    data = response.get_json()
+    assert data["success"] is False
+    assert "invalid fasta" in data["error"].lower()
+    assert not get_generator_mock.called
 
 
 def test_generate_endpoint_success(flask_client, mock_generator, sample_fasta):

@@ -11,6 +11,7 @@ from typing import Dict, Optional, Tuple
 from bio_music_pipeline.v2 import generate_structured_music_from_fasta_fragmented
 
 PROJECT_ROOT = Path(__file__).parent.parent
+FASTA_SEQUENCE_CHARS = frozenset("ABCDEFGHIKLMNPQRSTUVWXYZ*-.")
 
 
 class FASTAValidationError(Exception):
@@ -81,15 +82,12 @@ class BioMusicGenerator:
 
     @staticmethod
     def validate_fasta(fasta_text: str) -> Tuple[str, str]:
-        fasta_text = fasta_text.strip()
+        fasta_text = fasta_text.lstrip("\ufeff").strip()
         if not fasta_text:
             raise FASTAValidationError("FASTA input is empty")
 
         if not fasta_text.startswith(">"):
-            sequence = re.sub(r"[^A-Za-z*]", "", fasta_text).upper()
-            if len(sequence) < 90:
-                raise FASTAValidationError(f"Sequence too short: {len(sequence)} symbols after cleaning (minimum 90).")
-            return "User Sequence", sequence
+            raise FASTAValidationError("Invalid FASTA format: input must start with a header line beginning with '>'.")
 
         records = []
         current_header = None
@@ -100,7 +98,12 @@ class BioMusicGenerator:
                 continue
             if line.startswith(">"):
                 if current_header is not None:
-                    records.append((current_header, "".join(current_sequence_lines)))
+                    raw_sequence = "".join(current_sequence_lines)
+                    if not raw_sequence:
+                        raise FASTAValidationError(
+                            f"Invalid FASTA format: record '{current_header}' has no sequence symbols."
+                        )
+                    records.append((current_header, raw_sequence))
                 current_header = line[1:].strip() or f"Sequence_{len(records) + 1}"
                 current_sequence_lines = []
             else:
@@ -108,10 +111,22 @@ class BioMusicGenerator:
                     raise FASTAValidationError(
                         "Invalid FASTA format: sequence content must come after a header line starting with '>'."
                     )
+                invalid_chars = sorted({char for char in line.upper() if char not in FASTA_SEQUENCE_CHARS})
+                if invalid_chars:
+                    preview = ", ".join(repr(char) for char in invalid_chars[:8])
+                    raise FASTAValidationError(
+                        "Invalid FASTA format: sequence lines may contain only IUPAC DNA/RNA/protein symbols "
+                        f"and gap markers. Found: {preview}."
+                    )
                 current_sequence_lines.append(line)
 
         if current_header is not None:
-            records.append((current_header, "".join(current_sequence_lines)))
+            raw_sequence = "".join(current_sequence_lines)
+            if not raw_sequence:
+                raise FASTAValidationError(
+                    f"Invalid FASTA format: record '{current_header}' has no sequence symbols."
+                )
+            records.append((current_header, raw_sequence))
         if not records:
             raise FASTAValidationError("Invalid FASTA input: no valid FASTA records found.")
 
