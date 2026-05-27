@@ -1,265 +1,192 @@
 \appendix
 
 \stepcounter{appendixnum}
-\chapter*{Приложение}
-\addcontentsline{toc}{chapter}{Приложение}
+\clearpage
+\phantomsection
+\chapter*{ПРИЛОЖЕНИЕ А}
+\label{appendix:program-guides}
+\addcontentsline{toc}{chapter}{ПРИЛОЖЕНИЕ А. Описание программы и руководства}
+
+\begin{center}
+\textbf{Описание программы и руководства пользователя и разработчика}
+\end{center}
+
 \setcounter{section}{0}
 \setcounter{subsection}{0}
 \setcounter{subsubsection}{0}
 \setcounter{table}{0}
-\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesection}{А.\arabic{section}}
 \renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
 \renewcommand{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}
-\renewcommand{\thetable}{\thesection.\arabic{table}}
+\renewcommand{\thetable}{А.\arabic{table}}
 
-\section{Примеры использования системы}
+\section{Описание программы}
 
-\subsection{Установка и запуск}
+Программа BioSonification предназначена для генерации символической музыки по биологическим последовательностям. Входными данными являются записи в формате FASTA, содержащие DNA, RNA или protein последовательности. Выходными данными являются MIDI-файл с двумя дорожками и, при использовании веб-интерфейса, JSON-метаданные генерации.
 
-\subsubsection{Требования}
+Система реализует трехэтапный конвейер:
+\begin{enumerate}
+\item анализ биологической последовательности и извлечение признаков;
+\item генерация гармонической сетки по биологическим признакам;
+\item генерация одноголосной мелодии поверх полученной гармонии и запись двухдорожечного MIDI.
+\end{enumerate}
 
+Для длинных последовательностей используется фрагментированная генерация: входная последовательность разбивается на участки, каждый участок порождает короткий музыкальный фрагмент, после чего фрагменты объединяются в одну композицию. Такой режим удерживает каждый сгенерированный участок внутри распределения данных, на котором обучалась модель.
+
+Основные функции программы:
 \begin{itemize}
-\item Python 3.10+
-\item CUDA-совместимый GPU (рекомендуется 6GB+ VRAM)
-\item 8GB+ RAM
-\item 5GB свободного места на диске
+\item чтение и очистка FASTA-записей;
+\item определение типа последовательности;
+\item вычисление биологических признаков и управляющего профиля;
+\item сопоставление биологических и музыкальных сегментов при обучении;
+\item обучение моделей гармонии и мелодии;
+\item генерация MIDI из FASTA через CLI или веб-интерфейс;
+\item расчет технических метрик качества сгенерированных MIDI.
 \end{itemize}
 
-\subsubsection{Установка зависимостей}
+Минимальные требования для запуска: Python 3.10 или новее, зависимости из файла \texttt{requirements.txt}. Для обучения и быстрой генерации рекомендуется NVIDIA GPU с поддержкой CUDA и не менее 6 GB VRAM. Генерация также может выполняться на CPU, но медленнее.
+
+\section{Руководство пользователя}
+
+Для установки необходимо создать виртуальное окружение и установить зависимости проекта:
 
 \begin{verbatim}
-pip install torch torchvision torchaudio --index-url
-  https://download.pytorch.org/whl/cu118
-pip install -r requirements.txt
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install torch --index-url
+  https://download.pytorch.org/whl/cu126
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 \end{verbatim}
 
-\subsubsection{Подготовка данных}
+Генерация музыки из FASTA-файла выполняется командой:
 
 \begin{verbatim}
-# Скачать POP909 датасет
-python scripts/download_pop909.py
-
-# Подготовить FASTA файлы
-python scripts/prepare_fasta.py
+.\.venv\Scripts\python.exe generate_from_fasta_v2_fragmented.py `
+  --checkpoint CHECKPOINT_PATH `
+  --fasta data\fasta\refseq_genomes\GCF_000005845.2_genomic.fna `
+  --output generated_music.mid `
+  --bars-per-fragment 4
 \end{verbatim}
 
-\subsection{Обучение модели}
+Здесь \texttt{CHECKPOINT\_PATH} обозначает путь к файлу \texttt{structured\_pipeline.pt} актуальной обученной модели.
 
-\subsubsection{Конфигурация}
+После выполнения команды создается MIDI-файл, который можно открыть в MIDI-плеере, секвенсоре или нотном редакторе. Для примера длиной 10000 bp система создает композицию из нескольких 4-тактовых фрагментов, объединенных в один MIDI.
 
-Пример конфигурационного файла \texttt{config.json}:
+Для работы через веб-интерфейс используется команда:
 
 \begin{verbatim}
-{
-  "model": {
-    "d_model": 384,
-    "n_layers": 6,
-    "n_heads": 6,
-    "dim_feedforward": 1536,
-    "dropout": 0.20
-  },
-  "training": {
-    "batch_size": 8,
-    "gradient_accumulation_steps": 4,
-    "learning_rate": 0.0003,
-    "weight_decay": 0.05,
-    "max_epochs": 35
-  }
-}
+.\.venv\Scripts\python.exe -m web.app
 \end{verbatim}
 
-\subsubsection{Запуск обучения}
+После запуска нужно открыть адрес \texttt{http://localhost:5001}. В веб-интерфейсе можно вставить FASTA-последовательность, загрузить FASTA-файл, запустить генерацию, просмотреть метаданные результата и скачать MIDI. Если настроен аудиосинтезатор, веб-интерфейс также позволяет прослушивать примеры.
 
-\begin{verbatim}
-python train_bio_music_v2.py \
-  --config configs/pipeline_v2_medium_rtx2060_fast.json \
-  --output_dir results/my_experiment
-\end{verbatim}
+Формат входных данных должен соответствовать FASTA: первая непустая строка начинается с символа \texttt{>}, далее следуют строки последовательности. Минимальная длина очищенной последовательности определяется конфигурацией модели.
 
-\subsection{Генерация музыки}
+\section{Руководство разработчика}
 
-\subsubsection{Из FASTA файла}
-
-\begin{verbatim}
-python generate_from_fasta_v2_fragmented.py \
-  --fasta data/fasta/training/thesis_reference_genomes.fa \
-  --checkpoint results/v2_medium_rtx2060_fast/
-    checkpoints/structured_pipeline.pt \
-  --config configs/pipeline_v2_medium_rtx2060_fast.json \
-  --bars-per-fragment 4 \
-  --output generated_music.mid
-\end{verbatim}
-
-\subsubsection{Через веб-интерфейс}
-
-\begin{verbatim}
-cd web
-python app.py
-\end{verbatim}
-
-Откройте браузер по адресу \texttt{http://localhost:5001}.
-
-\subsection{Примеры входных данных}
-
-\subsubsection{FASTA формат}
-
-\begin{verbatim}
->NC_000913.3 Escherichia coli K-12 MG1655
-AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTC
-TGATAGCAGCTTCTGAACTGGTTACCTGCCGTGAGTAAATTAAAATTTTATTGACTTAGG
-TCACTAAATACTTTAACCAATATAGGCATAGCGCACAGACAGATAAAAATTACAGAGTAC
-\end{verbatim}
-
-\subsubsection{Protein FASTA}
-
-\begin{verbatim}
->sp|P0A7B8|RPOB_ECOLI DNA-directed RNA polymerase
-MQTLNDRLLVLPVELLRGETVRRTQTDSPYAQLADALRQRLAERLGVQPLVVFEMADLR
-AAFNHSSQPGTTLPQYVEMLPKQKVLGAMVTHRLSAEEKAELWQRIRQNVREARKQIVR
-\end{verbatim}
-
-\section{Структура проекта}
-
-\subsection{Основные модули}
-
-\begin{verbatim}
-biosonification/
-├── bio_music_pipeline/
-│   ├── v2/
-│   │   ├── bio.py              # Биологический энкодер
-│   │   ├── structured_music.py # Музыкальное представление
-│   │   ├── structured_pairing.py # Pairing модуль
-│   │   └── structured_model.py # Нейросетевая модель
-│   └── utils/
-├── configs/                    # Конфигурационные файлы
-├── data/                       # Данные (FASTA, MIDI)
-├── results/                    # Результаты экспериментов
-├── web/                        # Веб-интерфейс
-├── train_bio_music_v2.py      # CLI обучения
-└── generate_from_fasta_v2_fragmented.py # CLI генерации
-\end{verbatim}
-
-\subsection{Ключевые файлы}
-
-\begin{itemize}
-\item \texttt{bio.py} — извлечение биологических признаков
-\item \texttt{structured\_music.py} — структуры HarmonyBar и MelodyEvent
-\item \texttt{structured\_pairing.py} — сопоставление bio и music сегментов
-\item \texttt{structured\_model.py} — Bio-Conditioned Transformer
-\item \texttt{train\_bio\_music\_v2.py} — основной скрипт обучения
-\item \texttt{generate\_from\_fasta\_v2\_fragmented.py} — генерация MIDI
-\end{itemize}
-
-\section{Дополнительные таблицы и графики}
-
-\subsection{Детальная статистика обучения}
+Основная реализация находится в пакете \texttt{bio\_music\_pipeline.v2}. Назначение ключевых модулей приведено в таблице~\ref{tab:appendix-modules}.
 
 \begin{table}[htbp]
 \centering
-\caption{Динамика обучения harmony model по эпохам}
-\begin{tabular}{|c|c|c|}
+\caption{Ключевые модули программы}
+\label{tab:appendix-modules}
+\begin{tabular}{|p{0.38\textwidth}|p{0.52\textwidth}|}
 \hline
-\textbf{Epoch} & \textbf{Train Loss} & \textbf{Val Loss} \\
+\textbf{Модуль} & \textbf{Назначение} \\
 \hline
-1 & 0.171 & 0.159 \\
-2 & 0.126 & 0.145 \\
-3 & 0.109 & 0.147 \\
-4 & 0.097 & 0.146 \\
-5 & 0.087 & 0.150 \\
-6 & 0.080 & 0.156 \\
-7 & 0.074 & 0.152 \\
-8 & 0.070 & 0.156 \\
-9 & 0.065 & 0.154 \\
-10 & 0.061 & 0.156 \\
+\texttt{bio.py} & Кодирование FASTA, определение типа последовательности, расчет биологических признаков. \\
+\hline
+\texttt{structured\_music.py} & Извлечение гармонии и мелодии, токенизация, обратный рендеринг в MIDI. \\
+\hline
+\texttt{structured\_pairing.py} & Сопоставление биологических фрагментов и музыкальных сегментов через дескрипторы. \\
+\hline
+\texttt{structured\_model.py} & Bio-conditioned autoregressive Transformer для harmony и melody моделей. \\
+\hline
+\texttt{structured\_train.py} & Оркестрация обучения, сохранение checkpoint, метрик и артефактов. \\
+\hline
+\texttt{structured\_generate.py} & Инференс: FASTA -> гармония -> мелодия -> MIDI. \\
+\hline
+\texttt{evaluate.py} & Расчет метрик качества и построение baseline для сравнения. \\
+\hline
+\end{tabular}
+\end{table}
+
+Обучение модели запускается из корня репозитория:
+
+\begin{verbatim}
+.\.venv\Scripts\python.exe train_bio_music_v2.py `
+  --config configs\pipeline_v2_medium_rtx2060_fast.json `
+  --output_dir results\my_experiment
+\end{verbatim}
+
+После обучения ожидаются конфигурация запуска, calibration-файл pairing, checkpoint моделей гармонии и мелодии, объединенный \texttt{structured\_pipeline.pt}, JSON-метрики и smoke MIDI. Для проверки корректности изменений рекомендуется запускать тесты и статические проверки:
+
+\begin{verbatim}
+.\.venv\Scripts\python.exe -m pytest
+.\.venv\Scripts\python.exe -m black . --check
+.\.venv\Scripts\python.exe -m flake8 bio_music_pipeline web tests
+\end{verbatim}
+
+Веб-интерфейс использует \texttt{web/app.py} и \texttt{web/generator.py}. По умолчанию выбирается checkpoint актуальной модели из каталога \path{results/v2_medium_rtx2060_fast/checkpoints}; при необходимости путь можно переопределить переменной окружения \texttt{BIOSONIFICATION\_STRUCTURED\_CHECKPOINT}.
+
+\section{Дополнительные экспериментальные материалы}
+
+В таблице~\ref{tab:appendix-training-short} приведены основные значения validation loss для актуальной модели. Полные отчеты и промежуточные артефакты сохраняются в каталоге \texttt{results}.
+
+\begin{table}[htbp]
+\centering
+\caption{Ключевые значения качества обучения}
+\label{tab:appendix-training-short}
+\begin{tabular}{|p{0.46\textwidth}|c|}
+\hline
+\textbf{Показатель} & \textbf{Значение} \\
+\hline
+Harmony validation loss & 0.1454 \\
+\hline
+Melody validation loss & 0.1566 \\
+\hline
+Harmony test loss & 0.1389 \\
+\hline
+Melody test loss & 0.1650 \\
 \hline
 \end{tabular}
 \end{table}
 
 \begin{table}[htbp]
 \centering
-\caption{Динамика обучения melody model по эпохам}
-\begin{tabular}{|c|c|c|}
+\caption{Сравнение моделей по chord-tone ratio}
+\label{tab:appendix-chord-tone}
+\begin{tabular}{|p{0.46\textwidth}|c|}
 \hline
-\textbf{Epoch} & \textbf{Train Loss} & \textbf{Val Loss} \\
+\textbf{Вариант} & \textbf{Chord-tone ratio} \\
 \hline
-1 & 0.255 & 0.202 \\
-2 & 0.167 & 0.179 \\
-3 & 0.131 & 0.171 \\
-4 & 0.108 & 0.164 \\
-5 & 0.091 & 0.161 \\
-6 & 0.079 & 0.158 \\
-7 & 0.070 & 0.157 \\
-8 & 0.062 & 0.163 \\
-9 & 0.056 & 0.157 \\
-10 & 0.051 & 0.162 \\
-11 & 0.047 & 0.169 \\
-12 & 0.043 & 0.162 \\
-13 & 0.040 & 0.162 \\
-14 & 0.038 & 0.162 \\
-15 & 0.036 & 0.169 \\
+Актуальная модель & 0.6710 \\
 \hline
-\end{tabular}
-\end{table}
-
-\subsection{Детальная статистика генерации}
-
-\begin{table}[htbp]
-\centering
-\caption{Метрики для каждого тестового фрагмента}
-\begin{tabular}{|c|c|c|c|c|}
+Предыдущая версия модели & 0.6073 \\
 \hline
-\textbf{Fragment} & \textbf{Notes} & \textbf{Pitch range} & \textbf{Unique pitches} & \textbf{Chord-tone ratio} \\
-\hline
-1 & 20 & 17 & 9 & 0.650 \\
-2 & 24 & 18 & 8 & 0.708 \\
-3 & 16 & 12 & 6 & 0.750 \\
-4 & 25 & 14 & 8 & 0.800 \\
-5 & 23 & 17 & 9 & 0.783 \\
-6 & 20 & 10 & 6 & 0.800 \\
-7 & 16 & 10 & 6 & 0.500 \\
-8 & 26 & 14 & 11 & 0.538 \\
-9 & 21 & 12 & 8 & 0.667 \\
-10 & 21 & 16 & 10 & 0.762 \\
-11 & 20 & 10 & 8 & 0.650 \\
-12 & 18 & 21 & 11 & 0.444 \\
-\hline
-\textbf{Mean} & \textbf{20.83} & \textbf{14.25} & \textbf{8.33} & \textbf{0.6710} \\
-\hline
-\end{tabular}
-\end{table}
-
-\subsection{Примеры биологических признаков}
-
-\begin{table}[htbp]
-\centering
-\caption{Биологические признаки для фрагмента E. coli}
-\begin{tabular}{|l|c|}
-\hline
-\textbf{Признак} & \textbf{Значение} \\
-\hline
-GC-content & 0.508 \\
-Entropy & 1.982 \\
-Aromaticity & 0.089 \\
-Instability index & 42.3 \\
-Isoelectric point & 6.8 \\
-GRAVY & -0.234 \\
-Molecular weight & 65432.1 Da \\
+Random baseline & 0.4043 \\
 \hline
 \end{tabular}
 \end{table}
 
 \begin{table}[htbp]
 \centering
-\caption{Control profile для фрагмента E. coli}
-\begin{tabular}{|l|c|}
+\caption{Пример control profile для фрагмента E. coli}
+\label{tab:appendix-control-profile}
+\begin{tabular}{|p{0.46\textwidth}|c|}
 \hline
 \textbf{Параметр} & \textbf{Значение} \\
 \hline
 Tempo & 0.62 \\
+\hline
 Density & 0.54 \\
+\hline
 Harmony change & 0.71 \\
+\hline
 Register & 0.48 \\
+\hline
 Complexity & 0.66 \\
+\hline
 Mode & 0.52 \\
 \hline
 \end{tabular}

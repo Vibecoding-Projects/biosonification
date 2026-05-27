@@ -11,7 +11,7 @@
 \usepackage[left=30mm,right=10mm,top=20mm,bottom=20mm]{geometry}
 
 % Полуторный межстрочный интервал
-\renewcommand{\baselinestretch}{1.4}
+\renewcommand{\baselinestretch}{1.5}
 
 % Абзацный отступ 1.25см
 \usepackage{indentfirst}
@@ -81,10 +81,10 @@
     \labelwidth=20pt
     \itemindent=0pt
     \listparindent=0pt
-    \topsep=0pt plus 2pt minus 4pt
-    \partopsep=0pt plus 1pt minus 1pt
-    \parsep=0pt plus 1pt
-    \itemsep=\parsep
+    \topsep=0pt
+    \partopsep=0pt
+    \parsep=0pt
+    \itemsep=0pt
 }
 \makeatother
 
@@ -124,10 +124,13 @@
 \renewcommand{\cftchappagefont}{\normalfont\bfseries}
 \renewcommand{\cftsecfont}{\normalfont\bfseries}
 \renewcommand{\cftsecpagefont}{\normalfont\bfseries}
+\renewcommand{\cftchappresnum}{Глава~}
+\renewcommand{\cftchapaftersnum}{.\ }
+\settowidth{\cftchapnumwidth}{\normalfont\bfseries Глава~9.\ }
 
 % Главы, разделы, подразделы
 \usepackage[explicit]{titlesec}
-\titleformat{\chapter}{\centering\normalfont\bfseries}{\thechapter}{10pt}{\MakeUppercase{#1}}
+\titleformat{\chapter}{\centering\normalfont\bfseries}{}{0pt}{ГЛАВА \thechapter. \MakeUppercase{#1}}
 \titleformat{name=\chapter,numberless}{\centering\normalfont\bfseries}{}{0pt}{\MakeUppercase{#1}}
 \titleformat{\section}{\normalfont\bfseries}{\thesection}{10pt}{#1}
 \titleformat{\subsection}{\normalfont}{\thesubsection}{10pt}{#1}

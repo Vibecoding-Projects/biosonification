@@ -14,30 +14,50 @@
 \cyrdash\hskip.2em plus 0.1em\ignorespaces}
 \renewcommand{\newblock}{\ignorespaces}
 
-\bibitem{ohno1986}
+\bibitem{vaswani2017}
 \selectlanguageifdefined{english}
-Ohno~Susumu, Ohno~Midori. The all pervasive principle of repetitious recurrence
-  governs not only coding sequence construction but also human endeavor in
-  musical composition~// \BibEmph{Immunogenetics}. \BibDash
-\newblock 1986. \BibDash
-\newblock Vol.~24, no.~2. \BibDash
-\newblock P.~71--78.
-
-\bibitem{temple2017}
-\selectlanguageifdefined{english}
-Temple~Mark~D. An auditory display tool for DNA sequence analysis~//
-  \BibEmph{BMC Bioinformatics}. \BibDash
+Attention is all you need~/ Vaswani~Ashish, Shazeer~Noam, Parmar~Niki,
+  Uszkoreit~Jakob, Jones~Llion, Gomez~Aidan~N., Kaiser~{\L}ukasz, and
+  Polosukhin~Illia~// \BibEmph{Advances in Neural Information Processing
+  Systems}. \BibDash
 \newblock 2017. \BibDash
-\newblock Vol.~18, no.~1. \BibDash
-\newblock P.~221.
+\newblock Vol.~30.
 
-\bibitem{grond2011}
+\bibitem{biosonification_repo}
 \selectlanguageifdefined{english}
-Grond~Florian, Berger~Jonathan. Parameter mapping sonification~// The
-  Sonification Handbook. \BibDash
-\newblock Logos Verlag Berlin. \BibDash
-\newblock 2011. \BibDash
-\newblock P.~363--397.
+{BioSonification}. BioSonification/biosonification: исходный код
+  проекта. \BibDash
+\newblock Электронный ресурс. URL:
+  \url{https://github.com/BioSonification/biosonification}. \BibDash
+\newblock 2026. \BibDash
+\newblock Дата обращения: 27.05.2026.
+
+\bibitem{cock2009}
+\selectlanguageifdefined{english}
+Biopython: freely available Python tools for computational molecular biology
+  and bioinformatics~/ Cock~Peter J.~A., Antao~Tiago, Chang~Jeffrey~T.,
+  Chapman~Brad~A., Cox~Cymon~J., Dalke~Andrew, Friedberg~Iddo,
+  Hamelryck~Thomas, Kauff~Frank, Wilczynski~Bartek, and de~Hoon~Michiel
+  J.~L.~// \BibEmph{Bioinformatics}. \BibDash
+\newblock 2009. \BibDash
+\newblock Vol.~25, no.~11. \BibDash
+\newblock P.~1422--1423.
+
+\bibitem{briot2017}
+\selectlanguageifdefined{english}
+Briot~Jean-Pierre, Hadjeres~Ga{\"e}tan, Pachet~Fran{\c{c}}ois. Deep learning
+  techniques for music generation -- A survey~// \BibEmph{arXiv preprint
+  arXiv:1709.01620}. \BibDash
+\newblock 2017.
+
+\bibitem{music21}
+\selectlanguageifdefined{english}
+Cuthbert~Michael~Scott, Ariza~Christopher. music21: A toolkit for
+  computer-aided musicology and symbolic music data. \BibDash
+\newblock Электронный ресурс. URL:
+  \url{http://web.mit.edu/music21/}. \BibDash
+\newblock 2010. \BibDash
+\newblock Дата обращения: 27.05.2026.
 
 \bibitem{eck2002}
 \selectlanguageifdefined{english}
@@ -47,14 +67,51 @@ Eck~Douglas, Schmidhuber~J{\"u}rgen. Finding temporal structure in music: Blues
 \newblock 2002. \BibDash
 \newblock P.~747--756.
 
+\bibitem{hawthorne2019}
+\selectlanguageifdefined{english}
+Enabling factorized piano music modeling and generation with the MAESTRO
+  dataset~/ Hawthorne~Curtis, Stasyuk~Andriy, Roberts~Adam, Simon~Ian,
+  Huang~Cheng-Zhi~Anna, Dieleman~Sander, Elsen~Erich, Engel~Jesse, and
+  Eck~Douglas~// International Conference on Learning Representations (ICLR).
+  \BibDash
+\newblock 2019.
+
+\bibitem{grond2011}
+\selectlanguageifdefined{english}
+Grond~Florian, Berger~Jonathan. Parameter mapping sonification~// The
+  Sonification Handbook. \BibDash
+\newblock Logos Verlag Berlin. \BibDash
+\newblock 2011. \BibDash
+\newblock P.~363--397.
+
 \bibitem{roberts2018}
 \selectlanguageifdefined{english}
-A hierarchical latent vector model for learning long-term structure in music~/
+Hierarchical latent vector model for learning long-term structure in music~/
   Roberts~Adam, Engel~Jesse, Raffel~Colin, Hawthorne~Curtis, and Eck~Douglas~//
   Proceedings of the 35th International Conference on Machine Learning (ICML).
   \BibDash
 \newblock 2018. \BibDash
 \newblock P.~4364--4373.
+
+\bibitem{ji2020}
+\selectlanguageifdefined{english}
+Ji~Shulei, Luo~Jing, Yang~Xinyu. A comprehensive survey on deep music
+  generation: Multi-level representations, algorithms, evaluations, and future
+  directions~// \BibEmph{arXiv preprint arXiv:2011.06801}. \BibDash
+\newblock 2020.
+
+\bibitem{midi}
+\selectlanguageifdefined{english}
+{MIDI Manufacturers Association}. MIDI 1.0 Detailed Specification. \BibDash
+\newblock Электронный ресурс. URL:
+  \url{https://midi.org/specs}. \BibDash
+\newblock 1996. \BibDash
+\newblock Дата обращения: 27.05.2026.
+
+\bibitem{muller2015}
+\selectlanguageifdefined{english}
+M{\"u}ller~Meinard. Fundamentals of Music Processing. \BibDash
+\newblock Springer, 2015.
 
 \bibitem{dong2018}
 \selectlanguageifdefined{english}
@@ -74,19 +131,22 @@ Music Transformer: Generating music with long-term structure~/
   Representations (ICLR). \BibDash
 \newblock 2019.
 
-\bibitem{briot2017}
+\bibitem{musiclang}
 \selectlanguageifdefined{english}
-Briot~Jean-Pierre, Hadjeres~Ga{\"e}tan, Pachet~Fran{\c{c}}ois. Deep learning
-  techniques for music generation -- A survey~// \BibEmph{arXiv preprint
-  arXiv:1709.01620}. \BibDash
-\newblock 2017.
+{MusicLang}. MusicLang documentation and source code. \BibDash
+\newblock Электронный ресурс. URL:
+  \url{https://github.com/MusicLang/musiclang}. \BibDash
+\newblock 2024. \BibDash
+\newblock Дата обращения: 27.05.2026.
 
-\bibitem{ji2020}
+\bibitem{ohno1986}
 \selectlanguageifdefined{english}
-Ji~Shulei, Luo~Jing, Yang~Xinyu. A comprehensive survey on deep music
-  generation: Multi-level representations, algorithms, evaluations, and future
-  directions~// \BibEmph{arXiv preprint arXiv:2011.06801}. \BibDash
-\newblock 2020.
+Ohno~Susumu, Ohno~Midori. The all pervasive principle of repetitious recurrence
+  governs not only coding sequence construction but also human endeavor in
+  musical composition~// \BibEmph{Immunogenetics}. \BibDash
+\newblock 1986. \BibDash
+\newblock Vol.~24, no.~2. \BibDash
+\newblock P.~71--78.
 
 \bibitem{wang2020}
 \selectlanguageifdefined{english}
@@ -97,14 +157,14 @@ POP909: A pop-song dataset for music arrangement generation~/ Wang~Ziyu,
 \newblock 2020. \BibDash
 \newblock P.~38--45.
 
-\bibitem{hawthorne2019}
+\bibitem{pytorch}
 \selectlanguageifdefined{english}
-Enabling factorized piano music modeling and generation with the MAESTRO
-  dataset~/ Hawthorne~Curtis, Stasyuk~Andriy, Roberts~Adam, Simon~Ian,
-  Huang~Cheng-Zhi~Anna, Dieleman~Sander, Elsen~Erich, Engel~Jesse, and
-  Eck~Douglas~// International Conference on Learning Representations (ICLR).
-  \BibDash
-\newblock 2019.
+PyTorch: An imperative style, high-performance deep learning library~/
+  Paszke~Adam, Gross~Sam, Massa~Francisco, Lerer~Adam, Bradbury~James,
+  Chanan~Gregory, Killeen~Trevor, Lin~Zeming, Gimelshein~Natalia, Antiga~Luca,
+  et~al.~// Advances in Neural Information Processing Systems. \BibDash
+\newblock 2019. \BibDash
+\newblock Vol.~32.
 
 \bibitem{shannon1948}
 \selectlanguageifdefined{english}
@@ -114,53 +174,12 @@ Shannon~Claude~E. A Mathematical Theory of Communication~// \BibEmph{The Bell
 \newblock Vol.~27, no.~3. \BibDash
 \newblock P.~379--423.
 
-\bibitem{muller2015}
+\bibitem{temple2017}
 \selectlanguageifdefined{english}
-M{\"u}ller~Meinard. Fundamentals of Music Processing. \BibDash
-\newblock Springer, 2015.
-
-\bibitem{musiclang}
-\selectlanguageifdefined{english}
-{MusicLang}. MusicLang documentation and source code. \BibDash
-\newblock \url{https://github.com/MusicLang/musiclang}. \BibDash
-\newblock 2024.
-
-\bibitem{midi}
-\selectlanguageifdefined{english}
-{MIDI Manufacturers Association}. MIDI 1.0 Detailed Specification. \BibDash
-\newblock \url{https://midi.org/specs}. \BibDash
-\newblock 1996.
-
-\bibitem{vaswani2017}
-\selectlanguageifdefined{english}
-Attention is all you need~/ Vaswani~Ashish, Shazeer~Noam, Parmar~Niki,
-  Uszkoreit~Jakob, Jones~Llion, Gomez~Aidan~N., Kaiser~{\L}ukasz, and
-  Polosukhin~Illia~// \BibEmph{Advances in Neural Information Processing
-  Systems}. \BibDash
+Temple~Mark~D. An auditory display tool for DNA sequence analysis~//
+  \BibEmph{BMC Bioinformatics}. \BibDash
 \newblock 2017. \BibDash
-\newblock Vol.~30.
-
-\bibitem{pytorch}
-\selectlanguageifdefined{english}
-PyTorch: An imperative style, high-performance deep learning library. \BibDash
-\newblock 2019.
-
-\bibitem{cock2009}
-\selectlanguageifdefined{english}
-Biopython: freely available Python tools for computational molecular biology
-  and bioinformatics~/ Cock~Peter J.~A., Antao~Tiago, Chang~Jeffrey~T.,
-  Chapman~Brad~A., Cox~Cymon~J., Dalke~Andrew, Friedberg~Iddo,
-  Hamelryck~Thomas, Kauff~Frank, Wilczynski~Bartek, and de~Hoon~Michiel
-  J.~L.~// \BibEmph{Bioinformatics}. \BibDash
-\newblock 2009. \BibDash
-\newblock Vol.~25, no.~11. \BibDash
-\newblock P.~1422--1423.
-
-\bibitem{music21}
-\selectlanguageifdefined{english}
-Cuthbert~Michael~Scott, Ariza~Christopher. music21: A toolkit for
-  computer-aided musicology and symbolic music data. \BibDash
-\newblock \url{http://web.mit.edu/music21/}. \BibDash
-\newblock 2010.
+\newblock Vol.~18, no.~1. \BibDash
+\newblock P.~221.
 
 \end{thebibliography}

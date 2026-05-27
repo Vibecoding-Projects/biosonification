@@ -1,51 +1,51 @@
 This is BibTeX, Version 0.99e
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
-Reallocating 'name_of_file' (item size: 1) to 10 items.
-The style file: ugost2008.bst
+Reallocating 'name_of_file' (item size: 1) to 11 items.
+The style file: ugost2008s.bst
 Reallocating 'name_of_file' (item size: 1) to 7 items.
 Reallocating 'wiz_functions' (item size: 4) to 6000 items.
 Reallocating 'singl_function' (item size: 4) to 100 items.
 Database file #1: biblio.bib
 Reallocating 'singl_function' (item size: 4) to 100 items.
-You've used 19 entries,
-            5635 wiz_defined-function locations,
-            1681 strings with 16957 characters,
-and the built_in function-call counts, 6957 in all, are:
-= -- 802
-> -- 262
-< -- 28
-+ -- 90
-- -- 71
-* -- 395
-:= -- 781
-add.period$ -- 67
-call.type$ -- 19
+You've used 20 entries,
+            5869 wiz_defined-function locations,
+            1723 strings with 17618 characters,
+and the built_in function-call counts, 8818 in all, are:
+= -- 988
+> -- 353
+< -- 49
++ -- 127
+- -- 103
+* -- 536
+:= -- 1185
+add.period$ -- 76
+call.type$ -- 20
 change.case$ -- 0
 chr.to.int$ -- 0
-cite$ -- 19
-duplicate$ -- 351
-empty$ -- 775
-format.name$ -- 71
-if$ -- 1850
+cite$ -- 20
+duplicate$ -- 408
+empty$ -- 878
+format.name$ -- 103
+if$ -- 2205
 int.to.chr$ -- 0
-int.to.str$ -- 19
+int.to.str$ -- 20
 missing$ -- 0
-newline$ -- 128
-num.names$ -- 52
-pop$ -- 122
+newline$ -- 139
+num.names$ -- 88
+pop$ -- 145
 preamble$ -- 1
-purify$ -- 0
+purify$ -- 68
 quote$ -- 0
-skip$ -- 275
+skip$ -- 333
 stack$ -- 0
-substring$ -- 230
-swap$ -- 222
+substring$ -- 366
+swap$ -- 236
 text.length$ -- 9
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 0
-while$ -- 40
-width$ -- 21
-write$ -- 257
+while$ -- 54
+width$ -- 22
+write$ -- 286
